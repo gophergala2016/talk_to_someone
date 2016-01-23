@@ -4,7 +4,7 @@ import (
 	"flag"
 	"log"
 
-	"github.com/artemnikitin/talk_to_someone_client"
+	"github.com/gophergala2016/talk_to_someone_client"
 )
 
 var (
