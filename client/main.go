@@ -14,7 +14,7 @@ var (
 	userID string
 )
 
-func CreateConnection(url, name, id string) bool {
+func CreateConnection(url, id string) bool {
 	log.Println("Connecting to %s ...", url)
 	userID = id
 	var err error
@@ -24,11 +24,7 @@ func CreateConnection(url, name, id string) bool {
 		return active
 	}
 	log.Println("Connection established")
-	result := setup(name)
-	if result {
-		log.Println("Initialization finished")
-		active = true
-	}
+	active = true
 	return active
 }
 
@@ -38,7 +34,7 @@ func CloseConnection()  {
 	connect.Close()
 }
 
-func setup(name string) bool {
+func Setup(name string) bool {
 	var result bool = false
 	err := connect.WriteMessage(websocket.TextMessage, []byte("READY:" + userID + ":" + name))
 	if err != nil {
@@ -46,7 +42,7 @@ func setup(name string) bool {
 		return result
 	}
 	text := GetMessage()
-	log.Println("Received message ||", text)
+	log.Println("Received message :", text)
 	if strings.Contains(text, "ACCEPT:" + userID + ":READY") {
 		result = true
 	}
@@ -87,6 +83,7 @@ func GetMessage() string {
 }
 
 func FinishSession() {
+	connect.SetWriteDeadline(time.Now().Add(time.Second * 1))
 	connect.WriteMessage(websocket.TextMessage, []byte("FINISH:" + userID))
 }
 
