@@ -1,6 +1,6 @@
 package ws
 
-import "github.com/artemnikitin/talk_to_someone/utils"
+import "github.com/gophergala2016/talk_to_someone/server/utils"
 
 type hub struct {
 	broadcast chan []byte

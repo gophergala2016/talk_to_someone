@@ -5,7 +5,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/artemnikitin/talk_to_someone/ws"
+	"github.com/gophergala2016/talk_to_someone/server/ws"
 )
 
 var (

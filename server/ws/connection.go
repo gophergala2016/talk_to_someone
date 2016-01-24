@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/artemnikitin/talk_to_someone/utils"
+	"github.com/gophergala2016/talk_to_someone/server/utils"
 	"github.com/gorilla/websocket"
 )
 
