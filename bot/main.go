@@ -16,7 +16,7 @@ func main() {
 	client.CreateConnection(*server, "BOT")
 	client.Setup("BOT")
 	log.Println("Client active =", client.IsActive())
-	for client.IsActive() {
+	for {
 		message := client.GetMessage()
 		log.Println("Message received :", message)
 		if message == "" {
