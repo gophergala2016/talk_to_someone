@@ -3,9 +3,10 @@ package client
 import (
 	"log"
 	"strings"
-	"time"
+	//"time"
 
 	"github.com/gorilla/websocket"
+	"github.com/gophergala2016/talk_to_someone/server/utils"
 )
 
 var (
@@ -54,7 +55,7 @@ func SendMessage(message string) bool {
 	log.Println("Client active =", active)
 	if active {
 		str := "MESSAGE:" + userID + ":" + message
-		connect.SetWriteDeadline(time.Now().Add(time.Second * 1))
+		//connect.SetWriteDeadline(time.Now().Add(time.Second * 30))
 		err := connect.WriteMessage(websocket.TextMessage, []byte(str))
 		if err != nil {
 			log.Println("Can't send a message because of:", err)
@@ -69,7 +70,7 @@ func SendMessage(message string) bool {
 func GetMessage() string {
 	var result string
 	if active {
-		connect.SetReadDeadline(time.Now().Add(time.Second * 1))
+		//connect.SetReadDeadline(time.Now().Add(time.Second * 1))
 		mtype, message, err := connect.ReadMessage()
 		if err != nil {
 			log.Println("Can't receive a message because of:", err)
@@ -79,6 +80,10 @@ func GetMessage() string {
 		switch mtype {
 		case websocket.TextMessage:
 			result = string(message)
+			if utils.StringStartWith(result, "MESSAGE:") {
+				pos := strings.LastIndex(result, ":")
+				result = string(result[pos + 1:])
+			}
 		case websocket.PingMessage:
 			connect.WriteMessage(websocket.PongMessage, []byte(""))
 		case websocket.CloseMessage:
@@ -89,7 +94,7 @@ func GetMessage() string {
 }
 
 func FinishSession() {
-	connect.SetWriteDeadline(time.Now().Add(time.Second * 1))
+	//connect.SetWriteDeadline(time.Now().Add(time.Second * 1))
 	connect.WriteMessage(websocket.TextMessage, []byte("FINISH:"+userID))
 }
 

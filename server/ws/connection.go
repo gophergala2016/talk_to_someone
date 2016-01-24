@@ -29,6 +29,7 @@ func (user *User) read() {
 			log.Println("Can't receive a message because of:", err)
 			break
 		}
+		log.Println("For user " + user.id + ", message received:", string(message))
 		if mtype == websocket.TextMessage {
 			text := string(message)
 			if utils.StringStartWith(text, "READY:") {
@@ -42,27 +43,17 @@ func (user *User) read() {
 			if utils.StringStartWith(text, "GETPERSON:") {
 				//id := utils.GetId(text)
 			}
-			if utils.StringStartWith(text, "MESSAGE:") {
-				sender := utils.GetId(text)
-				user, exist := Get(sender)
-				if exist {
-					user2, exist := Get(user.counterparty)
-					if exist {
-						user2.messageBox <- []byte(text)
-					}
-				}
-			}
 		}
-
 		Hub.broadcast <- message
 	}
 }
 
 func (user *User) write() {
-	ticker := time.NewTicker(time.Millisecond * 200)
+	ticker := time.NewTicker(time.Millisecond * 50)
 	for {
 		select {
 		case message, ok := <-user.messageBox:
+			log.Println("For user " + user.id + ", message from mailbox:", string(message))
 			if !ok {
 				user.connect.WriteMessage(websocket.CloseMessage, []byte{})
 				return

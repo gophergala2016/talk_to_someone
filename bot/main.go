@@ -17,13 +17,13 @@ func main() {
 	client.Setup("BOT")
 	log.Println("Client active =", client.IsActive())
 	for {
+		client.SendMessage("Mmm, you're so cool )")
+		log.Println("Message sended")
 		message := client.GetMessage()
 		log.Println("Message received :", message)
 		if message == "" {
 			break
 		}
-		client.SendMessage("Mmm, you're so cool )")
-		log.Println("Message sended")
 	}
 	defer client.CloseConnection()
 }
