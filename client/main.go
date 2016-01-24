@@ -2,23 +2,23 @@ package client
 
 import (
 	"log"
-	"time"
 	"strings"
+	"time"
 
 	"github.com/gorilla/websocket"
 )
 
 var (
 	connect *websocket.Conn
-	active bool = false
-	userID string
+	active  = false
+	userID  string
 )
 
 func CreateConnection(url, id string) bool {
 	log.Println("Connecting to %s ...", url)
 	userID = id
 	var err error
-	connect, _, err = websocket.DefaultDialer.Dial("ws://" + url, nil)
+	connect, _, err = websocket.DefaultDialer.Dial("ws://"+url, nil)
 	if err != nil {
 		log.Println("Can't connect to server because of :", err)
 		return active
@@ -28,29 +28,29 @@ func CreateConnection(url, id string) bool {
 	return active
 }
 
-func CloseConnection()  {
+func CloseConnection() {
 	active = false
 	log.Println("Connection closed")
 	connect.Close()
 }
 
 func Setup(name string) bool {
-	var result bool = false
-	err := connect.WriteMessage(websocket.TextMessage, []byte("READY:" + userID + ":" + name))
+	result := false
+	err := connect.WriteMessage(websocket.TextMessage, []byte("READY:"+userID+":"+name))
 	if err != nil {
 		log.Println("Can't send a message because of:", err)
 		return result
 	}
 	text := GetMessage()
 	log.Println("Received message :", text)
-	if strings.Contains(text, "ACCEPT:" + userID + ":READY") {
+	if strings.Contains(text, "ACCEPT:"+userID+":READY") {
 		result = true
 	}
 	return result
 }
 
 func SendMessage(message string) bool {
-	var result bool = false
+	result := false
 	log.Println("Client active =", active)
 	if active {
 		str := "MESSAGE:" + userID + ":" + message
@@ -58,6 +58,8 @@ func SendMessage(message string) bool {
 		err := connect.WriteMessage(websocket.TextMessage, []byte(str))
 		if err != nil {
 			log.Println("Can't send a message because of:", err)
+			active = false
+			CloseConnection()
 		}
 		result = true
 	}
@@ -71,12 +73,16 @@ func GetMessage() string {
 		mtype, message, err := connect.ReadMessage()
 		if err != nil {
 			log.Println("Can't receive a message because of:", err)
+			active = false
+			CloseConnection()
 		}
-		if mtype == websocket.TextMessage {
+		switch mtype {
+		case websocket.TextMessage:
 			result = string(message)
-		}
-		if mtype == websocket.PingMessage {
+		case websocket.PingMessage:
 			connect.WriteMessage(websocket.PongMessage, []byte(""))
+		case websocket.CloseMessage:
+			CloseConnection()
 		}
 	}
 	return result
@@ -84,7 +90,7 @@ func GetMessage() string {
 
 func FinishSession() {
 	connect.SetWriteDeadline(time.Now().Add(time.Second * 1))
-	connect.WriteMessage(websocket.TextMessage, []byte("FINISH:" + userID))
+	connect.WriteMessage(websocket.TextMessage, []byte("FINISH:"+userID))
 }
 
 func IsActive() bool {

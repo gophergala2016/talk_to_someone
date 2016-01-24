@@ -4,7 +4,7 @@ import (
 	"flag"
 	"log"
 
-	"github.com/gophergala2016/talk_to_someone_client"
+	"github.com/artemnikitin/talk_to_someone_client"
 )
 
 var (
@@ -13,13 +13,17 @@ var (
 
 func main() {
 	flag.Parse()
-	client.CreateConnection(*server, "BOT", "BOT")
+	client.CreateConnection(*server, "BOT")
+	client.Setup("BOT")
 	log.Println("Client active =", client.IsActive())
-	for {
+	for client.IsActive() {
 		message := client.GetMessage()
-		log.Println("Message received =", message)
+		log.Println("Message received :", message)
+		if message == "" {
+			break
+		}
 		client.SendMessage("Mmm, you're so cool )")
 		log.Println("Message sended")
 	}
-	client.CloseConnection()
+	defer client.CloseConnection()
 }
